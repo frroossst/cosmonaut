@@ -5,8 +5,6 @@ fn main()
     {
     let mut state = RocketState::new();
 
-    let producer = DataProducer::new();
-
     loop
         {
         let accl = RocketAcceleration::Accelerating;
@@ -14,4 +12,8 @@ fn main()
         state.transition(accl, alt);
         break
         }
+
+    // let producer = DataProducer::setup("output.csv");
+    DataProducer::setup(filename);
+    // println!("{:?}", producer.get_data());
     }
