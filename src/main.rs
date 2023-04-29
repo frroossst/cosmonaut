@@ -13,7 +13,12 @@ fn main()
         break
         }
 
-    // let producer = DataProducer::setup("output.csv");
-    DataProducer::setup(filename);
-    // println!("{:?}", producer.get_data());
+
+    let mut producer = DataProducer::new();
+    producer.setup("output.csv").unwrap();
+
+    println!("{:#?}", producer.get_data());
+    println!("{:#?}", producer.get_data());
+    println!("{:#?}", producer.get_data());
+    println!("{:#?}", producer.get_data());
     }

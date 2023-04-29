@@ -1,4 +1,4 @@
-use crate::statemachine::{RocketState, RocketAcceleration, RocketAltitude};
+use std::{vec, fmt::Debug};
 use csv;
 
 #[derive(Debug, Copy, Clone)]
@@ -13,14 +13,14 @@ pub struct DataChunk
     gyro_x: f32,
     gyro_y: f32,
     gyro_z: f32,
-    relative_altitde: i32,
+    relative_altitde: f32,
     absolute_pressure: f32,
     temperature: f32,
     }
 
 impl DataChunk
     {
-    fn new(fram_cursor: usize, timestamp: u32, rocket_state: u8, accl_x: f32, accl_y: f32, accl_z: f32, gyro_x: f32, gyro_y: f32, gyro_z: f32, relative_altitde: i32, absolute_pressure: f32, temperature: f32) -> DataChunk
+    fn new(fram_cursor: usize, timestamp: u32, rocket_state: u8, accl_x: f32, accl_y: f32, accl_z: f32, gyro_x: f32, gyro_y: f32, gyro_z: f32, relative_altitde: f32, absolute_pressure: f32, temperature: f32) -> DataChunk
         {
         DataChunk 
             {
@@ -44,15 +44,20 @@ impl DataChunk
 #[derive(Debug)]
 pub struct DataProducer
     {
-    chunks: Vec<DataChunk>,
+    pub chunks: Vec<DataChunk>,
     cursor: usize
     }
 
 impl DataProducer
-    {
-    pub fn setup(filename: &str) -> Result<DataProducer, csv::Error>
+    {  
+    pub fn new() -> Self
         {
-        let csv_reader = match csv::Reader::from_path(filename)
+        DataProducer { chunks: vec![], cursor: 0 }
+        }
+
+    pub fn setup(&mut self, filename: &str) -> Result<(), csv::Error>
+        {
+        let mut csv_reader = match csv::Reader::from_path(filename)
             {
             Ok(reader) => reader,
             Err(e) => return Err(e),
@@ -68,7 +73,7 @@ impl DataProducer
                 Err(e) => return Err(e),
                 };
 
-            let fram_cursor = record[0].parse::<usize>().unwrap();
+            let fram_cursor = usize::from_str_radix(&record[0], 16).unwrap();
             let timestamp = record[1].parse::<u32>().unwrap();
             let rocket_state = record[2].parse::<u8>().unwrap();
             let accl_x = record[3].parse::<f32>().unwrap();
@@ -77,14 +82,16 @@ impl DataProducer
             let gyro_x = record[6].parse::<f32>().unwrap();
             let gyro_y = record[7].parse::<f32>().unwrap();
             let gyro_z = record[8].parse::<f32>().unwrap();
-            let relative_altitde = record[9].parse::<i32>().unwrap();
+            let relative_altitde = record[9].parse::<f32>().unwrap();
             let absolute_pressure = record[10].parse::<f32>().unwrap();
             let temperature = record[11].parse::<f32>().unwrap();
 
             chunks.push(DataChunk::new(fram_cursor, timestamp, rocket_state, accl_x, accl_y, accl_z, gyro_x, gyro_y, gyro_z, relative_altitde, absolute_pressure, temperature));
             }
 
-        Result::Ok(DataProducer { chunks, cursor: 0 })
+        self.chunks = chunks;
+
+        Ok(())
         }
 
     pub fn get_data(&mut self) -> DataChunk
@@ -93,3 +100,4 @@ impl DataProducer
         self.chunks[self.cursor - 1]
         }
     }
+
