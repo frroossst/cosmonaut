@@ -24,10 +24,10 @@ impl RocketState
         match (acceleration, altitude)
             {
             (RocketAcceleration::Accelerating, RocketAltitude::Ascending) => { *self = RocketState::PoweredFlight }
-            (RocketAcceleration::Decelerating, RocketAltitude::Ascending) => { *self = RocketState::Apogee }
+            (RocketAcceleration::Decelerating, RocketAltitude::Ascending) => { *self = RocketState::UnpoweredFlight }
             (RocketAcceleration::Decelerating, RocketAltitude::Descending) => { *self = RocketState::BallisticDescent }
             (RocketAcceleration::Coasting, RocketAltitude::Constant) => { *self = RocketState::LandSafe }
-            (_, _) => { *self = RocketState::Unarmed }
+            (_, _) => { panic!("unknown state found") }
             }
         }
 

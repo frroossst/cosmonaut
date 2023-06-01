@@ -1,24 +1,10 @@
 use cosmonaut::statemachine::{RocketState, RocketAcceleration, RocketAltitude};
 use cosmonaut::data_producer::DataProducer;
+use cosmonaut::pid::PID;
 
 fn main()
     {
-    let mut state = RocketState::new();
-
-    loop
-        {
-        let accl = RocketAcceleration::Accelerating;
-        let alt = RocketAltitude::Ascending;
-        state.transition(accl, alt);
-        break
-        }
-
-
-    let mut producer = DataProducer::new();
-    producer.setup("output.csv").unwrap();
-
-    println!("{:#?}", producer.get_data());
-    println!("{:#?}", producer.get_data());
-    println!("{:#?}", producer.get_data());
-    println!("{:#?}", producer.get_data());
+    let mut pid = PID::new();
+    pid.set_gain(0.1, 0.01, 0.01);
+    pid.update(10.0, 8.0);
     }
